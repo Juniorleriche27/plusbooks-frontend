@@ -1,39 +1,59 @@
-import React from 'react'
-import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import App from './App'
-import './styles/base.css'
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import App from "./App";
 
-// Pages
-import Home from './pages/Home'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import EbooksList from './pages/EbooksList'
-import EbookDetail from './pages/EbookDetail'
-import EbookCreate from './pages/EbookCreate'
-import Profile from './pages/Profile'
+import Home from "./pages/Home";
+import Ebooks from "./pages/Ebooks";
+import EbookDetail from "./pages/EbookDetail";
+import EbookCreate from "./pages/EbookCreate";
 
-// Composants
-import ProtectedRoute from './components/ProtectedRoute'
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import Profile from "./pages/Profile";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <App />,
-    children: [
-      { index: true, element: <Home /> },
-      { path: 'login', element: <Login /> },
-      { path: 'register', element: <Register /> },
-      { path: 'ebooks', element: <EbooksList /> },
-      { path: 'ebooks/new', element: <ProtectedRoute><EbookCreate /></ProtectedRoute> },
-      { path: 'ebooks/:id', element: <EbookDetail /> },
-      { path: 'profile', element: <ProtectedRoute><Profile /></ProtectedRoute> },
-    ],
-  },
-])
+import ProtectedRoute from "./components/ProtectedRoute";
+import "./styles/base.css";
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />}>
+          <Route index element={<Home />} />
+
+          <Route path="ebooks" element={<Ebooks />} />
+          <Route path="ebooks/:id" element={<EbookDetail />} />
+          <Route
+            path="ebooks/new"
+            element={
+              <ProtectedRoute>
+                <EbookCreate />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ✅ Ajout des pages publiques */}
+          <Route path="about" element={<About />} />
+          <Route path="contact" element={<Contact />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
-)
+);

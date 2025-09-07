@@ -15,7 +15,9 @@ export default function Header() {
   }, []);
 
   const doLogout = async () => {
-    try { await logout(); } catch {}
+    try {
+      await logout();
+    } catch {}
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
@@ -33,16 +35,24 @@ export default function Header() {
       <nav className="nav">
         <Link to="/">Accueil</Link>
         <Link to="/ebooks">E-books</Link>
+        <Link to="/about">À propos</Link>
+        <Link to="/contact">Contact</Link>
+
         {user && <Link to="/ebooks/new">Publier</Link>}
+
         {user ? (
           <>
             <Link to="/profile">Profil</Link>
-            <button className="btn outline" onClick={doLogout}>Déconnexion</button>
+            <button className="btn outline" onClick={doLogout}>
+              Déconnexion
+            </button>
           </>
         ) : (
           <>
             <Link to="/login">Connexion</Link>
-            <Link className="btn" to="/register">Inscription</Link>
+            <Link className="btn" to="/register">
+              Inscription
+            </Link>
           </>
         )}
       </nav>
