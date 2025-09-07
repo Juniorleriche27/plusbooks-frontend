@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App";
 
 import Home from "./pages/Home";
-import Ebooks from "./pages/Ebooks";
+import Ebooks from "./pages/EbooksList";
 import EbookDetail from "./pages/EbookDetail";
 import EbookCreate from "./pages/EbookCreate";
 
