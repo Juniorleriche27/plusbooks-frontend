@@ -1,34 +1,21 @@
 import React from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 export default function App() {
   return (
-    <div className="app">
-      {/* Barre de navigation */}
-      <header className="navbar">
-        <div className="container row" style={{justifyContent: "space-between", alignItems: "center"}}>
-          <Link to="/" className="brand">PlusBooks</Link>
+    <div className="app-shell">
+      {/* En-tête global (Header.jsx gère le wordmark + nav + état user) */}
+      <Header />
 
-          <nav className="row" style={{gap: 12}}>
-            <NavLink to="/" end className="btn outline">Accueil</NavLink>
-            <NavLink to="/ebooks" className="btn outline">E-books</NavLink>
-            <NavLink to="/ebooks/new" className="btn">Publier</NavLink>
-            <NavLink to="/profile" className="btn outline">Profil</NavLink>
-            <NavLink to="/login" className="btn outline">Connexion</NavLink>
-            <NavLink to="/register" className="btn outline">Inscription</NavLink>
-          </nav>
-        </div>
-      </header>
-
-      {/* Contenu des routes enfants */}
-      <main className="container" style={{paddingTop: 24, paddingBottom: 48}}>
+      {/* Contenu des pages */}
+      <main className="container" style={{ paddingTop: 24, paddingBottom: 48 }}>
         <Outlet />
       </main>
 
-      {/* Pied de page */}
-      <footer className="container muted" style={{padding: "24px 0", borderTop: "1px solid var(--border)"}}>
-        © {new Date().getFullYear()} PlusBooks. Tous droits réservés.
-      </footer>
+      {/* Pied de page global (Footer.jsx gère le centrage et le badge) */}
+      <Footer />
     </div>
   );
 }
