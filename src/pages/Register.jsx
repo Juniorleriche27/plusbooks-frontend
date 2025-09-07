@@ -20,7 +20,8 @@ export default function Register() {
   const [error, setError] = useState("");
   const [emailTaken, setEmailTaken] = useState(false);
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   // Politique mot de passe
   const policy = useMemo(() => {
@@ -36,7 +37,12 @@ export default function Register() {
   }, [form.password, form.confirm]);
 
   const allOk = useMemo(
-    () => policy.length && policy.twoUpper && policy.number && policy.special && policy.match,
+    () =>
+      policy.length &&
+      policy.twoUpper &&
+      policy.number &&
+      policy.special &&
+      policy.match,
     [policy]
   );
 
@@ -61,6 +67,7 @@ export default function Register() {
       const res = await register(payload);
       localStorage.setItem("token", res.token);
       localStorage.setItem("user", JSON.stringify(res.user));
+      window.dispatchEvent(new Event("auth-changed")); // ICI : met à jour le Header tout de suite
       nav(next, { replace: true });
     } catch (err) {
       const msg =
@@ -100,7 +107,9 @@ export default function Register() {
               <span>Ce compte existe déjà.</span>
               <Link
                 className="btn outline"
-                to={`/login?next=${encodeURIComponent(next)}&email=${encodeURIComponent(form.email)}`}
+                to={`/login?next=${encodeURIComponent(next)}&email=${encodeURIComponent(
+                  form.email
+                )}`}
               >
                 Se connecter
               </Link>
@@ -114,7 +123,13 @@ export default function Register() {
 
           <label>
             Email
-            <input name="email" type="email" value={form.email} onChange={onChange} required />
+            <input
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={onChange}
+              required
+            />
           </label>
 
           <div className="row" style={{ gap: 12 }}>
@@ -173,7 +188,11 @@ export default function Register() {
 
           <div className="auth-links">
             <span className="muted">Déjà un compte ?</span>
-            <Link to={`/login?next=${encodeURIComponent(next)}&email=${encodeURIComponent(form.email)}`}>
+            <Link
+              to={`/login?next=${encodeURIComponent(next)}&email=${encodeURIComponent(
+                form.email
+              )}`}
+            >
               Se connecter
             </Link>
           </div>
