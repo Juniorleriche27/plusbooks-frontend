@@ -13,7 +13,6 @@ export default function Login() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // si déjà connecté, va directement sur profil (ou next)
     const t = localStorage.getItem("token");
     if (!t) return;
     me().then(() => nav(next, { replace: true })).catch(() => {});
@@ -21,12 +20,12 @@ export default function Login() {
   }, []);
 
   useEffect(() => {
-    // si query email change (depuis un lien), on le répercute
     if (presetEmail) setForm((f) => ({ ...f, email: presetEmail }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [presetEmail]);
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -36,6 +35,7 @@ export default function Login() {
       const res = await login(form);
       localStorage.setItem("token", res.token);
       localStorage.setItem("user", JSON.stringify(res.user));
+      window.dispatchEvent(new Event("auth-changed")); // <- ICI
       nav(next, { replace: true });
     } catch (err) {
       setError("Email ou mot de passe incorrect.");
@@ -49,12 +49,18 @@ export default function Login() {
       <div className="auth-grid">
         <div className="auth-aside">
           <h1>Heureux de vous revoir</h1>
-          <p className="muted">Accédez à votre bibliothèque et à votre tableau de bord.</p>
+          <p className="muted">
+            Accédez à votre bibliothèque et à votre tableau de bord.
+          </p>
         </div>
 
         <form className="auth-card" onSubmit={onSubmit}>
           <h2>Connexion</h2>
-          {error && <div className="card" style={{ borderLeft: "4px solid #ef4444" }}>{error}</div>}
+          {error && (
+            <div className="card" style={{ borderLeft: "4px solid #ef4444" }}>
+              {error}
+            </div>
+          )}
 
           <label>
             Email
@@ -85,7 +91,11 @@ export default function Login() {
           <div className="auth-links">
             <Link to="/forgot-password">Mot de passe oublié ?</Link>
             <span>•</span>
-            <Link to={`/register?next=${encodeURIComponent(next)}&email=${encodeURIComponent(form.email)}`}>
+            <Link
+              to={`/register?next=${encodeURIComponent(
+                next
+              )}&email=${encodeURIComponent(form.email)}`}
+            >
               Créer un compte
             </Link>
           </div>
