@@ -50,8 +50,14 @@ body {
   font-weight: 700;
   font-size: 1.2rem;
 }
+/* espacement propre via gap */
+.header .nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .nav a {
-  margin-left: 16px;
+  /* plus de margin-left */
   text-decoration: none;
   color: var(--black);
   font-weight: 500;
@@ -211,4 +217,78 @@ h1, h2, h3 {
 .feature-card p {
   color: var(--gray-dark);
   font-size: 0.95rem;
+}
+
+/* === Brand (wordmark) === */
+.brand-wordmark{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  text-decoration:none;
+  user-select:none;
+  letter-spacing:-0.02em;
+  font-family: 'Poppins', sans-serif; /* plus “marque” */
+  line-height: 1;
+}
+.brand-wordmark .plus{
+  font-weight: 800;
+  font-size: 1.35rem;
+  background: linear-gradient(90deg, var(--blue), var(--blue-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.brand-wordmark .dot{
+  width:.5rem; height:.5rem; border-radius:999px;
+  background: linear-gradient(90deg, var(--blue), var(--blue-dark));
+  display:inline-block;
+}
+.brand-wordmark .books{
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: var(--black);
+}
+
+/* (Option) petits pills pour la nav */
+.nav a{
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+}
+.nav a:hover{
+  box-shadow: 0 0 0 4px rgba(37,99,235,.18);
+}
+
+/* === Footer amélioré === */
+.footer{
+  margin-top: auto;
+  padding: 28px 16px;
+  background: var(--white);
+  border-top: 1px solid #e5e7eb;
+  color: var(--gray-dark);
+}
+.footer .footer-inner{
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center; /* centrage horizontal */
+  gap: 10px;
+  flex-wrap: wrap;
+  text-align:center;
+  font-size: .95rem;
+}
+.footer .badge{
+  padding:.18rem .5rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blue), var(--blue-dark));
+  color:#fff;
+  font-weight:600;
+  font-size:.75rem;
+}
+
+/* Accessibilité : focus visible propre */
+a:focus-visible, .btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.35);
+  border-radius: var(--radius);
 }

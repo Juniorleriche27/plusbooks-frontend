@@ -23,9 +23,14 @@ export default function Header() {
   };
 
   return (
-    <header className="bar">
-      <Link to="/" className="brand">PlusBooks</Link>
-      <nav className="gap">
+    <header className="header">
+      <Link to="/" className="brand-wordmark" aria-label="PlusBooks, accueil">
+        <span className="plus">Plus</span>
+        <span className="dot" />
+        <span className="books">Books</span>
+      </Link>
+
+      <nav className="nav">
         <Link to="/">Accueil</Link>
         <Link to="/ebooks">E-books</Link>
         {user && <Link to="/ebooks/new">Publier</Link>}
