@@ -18,6 +18,13 @@ import Contact from "./pages/Contact";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./styles/base.css";
 
+import Community from "./pages/Community";
+import NewPost from "./pages/NewPost";
+import PostShow from "./pages/PostShow";
+import Messages from "./pages/Messages";
+import Groups from "./pages/Groups";
+
+
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
@@ -39,6 +46,13 @@ createRoot(document.getElementById("root")).render(
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="community" element={<Community />} />
+          <Route path="community/new" element={<ProtectedRoute><NewPost /></ProtectedRoute>} />
+          <Route path="community/:id" element={<PostShow />} />
+
+          <Route path="groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
+          <Route path="messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+
 
           <Route
             path="profile"
