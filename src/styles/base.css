@@ -292,3 +292,41 @@ a:focus-visible, .btn:focus-visible {
   box-shadow: 0 0 0 3px rgba(37,99,235,.35);
   border-radius: var(--radius);
 }
+
+/* === Auth pages (layout paysage) === */
+.auth-grid{
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap:24px;
+  align-items: stretch;
+}
+.auth-aside{
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 32px;
+  display: grid;
+  align-content: center;
+}
+.auth-aside h1{ margin:0 0 8px 0; }
+.auth-card{
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  display: grid;
+  gap: 14px;
+}
+.auth-links{
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top: 4px;
+}
+.checklist{ 
+  list-style: none; padding: 0; margin: 0 0 8px 0; 
+  display:grid; gap:6px;
+}
+.checklist li.ko{ color: var(--gray-dark); }
+.checklist li.ok{ color: #16a34a; font-weight: 600; } /* vert ok */
+@media (max-width: 900px){
+  .auth-grid{ grid-template-columns: 1fr; }
+  .auth-aside{ order: -1; }
+}

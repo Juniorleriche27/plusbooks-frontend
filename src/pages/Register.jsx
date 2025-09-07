@@ -1,13 +1,17 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { register } from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Register() {
   const nav = useNavigate();
+  const [search] = useSearchParams();
+  const next = search.get("next") || "/profile";
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
+    confirm: "",
     role: "user",
     domain: "",
     bio: "",
@@ -15,18 +19,46 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const onChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const policy = useMemo(() => {
+    const pw = form.password || "";
+    const upperMatches = pw.match(/[A-Z]/g) || [];
+    return {
+      length: pw.length >= 8,
+      twoUpper: upperMatches.length >= 2,
+      number: /\d/.test(pw),
+      special: /[^A-Za-z0-9]/.test(pw),
+      match: pw.length > 0 && pw === form.confirm,
+    };
+  }, [form.password, form.confirm]);
+
+  const allOk = useMemo(
+    () => policy.length && policy.twoUpper && policy.number && policy.special && policy.match,
+    [policy]
+  );
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    if (!allOk) {
+      setError("Le mot de passe ne respecte pas la politique.");
+      return;
+    }
     setLoading(true);
     try {
-      const res = await register(form);
+      const payload = {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        role: form.role,
+        domain: form.domain.trim(),
+        bio: form.bio.trim(),
+      };
+      const res = await register(payload);
       localStorage.setItem("token", res.token);
       localStorage.setItem("user", JSON.stringify(res.user));
-      nav("/profile");
+      nav(next, { replace: true });
     } catch (err) {
       setError(
         err?.response?.data?.message || "Échec de l'inscription. Vérifie les champs."
@@ -37,57 +69,89 @@ export default function Register() {
   };
 
   return (
-    <section className="stack">
-      <h1>Créer un compte</h1>
-      <form className="card stack" onSubmit={onSubmit}>
-        {error && <div className="error">{error}</div>}
-        <label>
-          Nom
-          <input name="name" value={form.name} onChange={onChange} required />
-        </label>
-        <label>
-          Email
-          <input
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={onChange}
-            required
-          />
-        </label>
-        <label>
-          Mot de passe
-          <input
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={onChange}
-            required
-          />
-        </label>
+    <section className="container">
+      <div className="auth-grid">
+        <div className="auth-aside">
+          <h1>Bienvenue sur PlusBooks</h1>
+          <p className="muted">
+            Créez votre compte pour publier, commenter et télécharger des e-books.
+          </p>
+        </div>
 
-        <label>
-          Type de compte
-          <select name="role" value={form.role} onChange={onChange}>
-            <option value="user">Utilisateur</option>
-            <option value="coach">Coach</option>
-          </select>
-        </label>
+        <form className="auth-card" onSubmit={onSubmit}>
+          <h2>Inscription</h2>
+          {error && <div className="error">{error}</div>}
 
-        <label>
-          Domaine (ex: Développement personnel, Finances…)
-          <input name="domain" value={form.domain} onChange={onChange} />
-        </label>
+          <label>
+            Nom
+            <input name="name" value={form.name} onChange={onChange} required />
+          </label>
 
-        <label>
-          À propos / Bio
-          <textarea name="bio" value={form.bio} onChange={onChange} rows={4} />
-        </label>
+          <label>
+            Email
+            <input name="email" type="email" value={form.email} onChange={onChange} required />
+          </label>
 
-        <button className="btn" disabled={loading}>
-          {loading ? "Création..." : "Créer le compte"}
-        </button>
-      </form>
+          <div className="row" style={{ gap: 12 }}>
+            <label style={{ flex: 1 }}>
+              Mot de passe
+              <input
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={onChange}
+                required
+                aria-describedby="pw-policy"
+              />
+            </label>
+            <label style={{ flex: 1 }}>
+              Confirmation
+              <input
+                name="confirm"
+                type="password"
+                value={form.confirm}
+                onChange={onChange}
+                required
+              />
+            </label>
+          </div>
+
+          <ul id="pw-policy" className="checklist">
+            <li className={policy.length ? "ok" : "ko"}>Au moins 8 caractères</li>
+            <li className={policy.twoUpper ? "ok" : "ko"}>Au moins 2 majuscules</li>
+            <li className={policy.number ? "ok" : "ko"}>Au moins 1 chiffre</li>
+            <li className={policy.special ? "ok" : "ko"}>Au moins 1 caractère spécial</li>
+            <li className={policy.match ? "ok" : "ko"}>Confirmation identique</li>
+          </ul>
+
+          <label>
+            Type de compte
+            <select name="role" value={form.role} onChange={onChange}>
+              <option value="user">Utilisateur</option>
+              <option value="coach">Coach</option>
+            </select>
+          </label>
+
+          <label>
+            Domaine (ex: Développement personnel, Finances…)
+            <input name="domain" value={form.domain} onChange={onChange} />
+          </label>
+
+          <label>
+            À propos / Bio
+            <textarea name="bio" value={form.bio} onChange={onChange} rows={4} />
+          </label>
+
+          <button className="btn" disabled={!allOk || loading}>
+            {loading ? "Création..." : "Créer le compte"}
+          </button>
+
+          <div className="auth-links">
+            <span className="muted">Déjà un compte ?</span>
+            <Link to={`/login?next=${encodeURIComponent(next)}`}>Se connecter</Link>
+          </div>
+        </form>
+      </div>
     </section>
   );
 }
