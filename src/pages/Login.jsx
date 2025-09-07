@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { login, me } from "../services/api";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
@@ -6,24 +6,32 @@ export default function Login() {
   const nav = useNavigate();
   const [search] = useSearchParams();
   const next = search.get("next") || "/profile";
+  const presetEmail = search.get("email") || "";
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: presetEmail, password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(()=>{
+  useEffect(() => {
     // si déjà connecté, va directement sur profil (ou next)
     const t = localStorage.getItem("token");
     if (!t) return;
-    me().then(()=>nav(next, { replace:true })).catch(()=>{});
-    // eslint-disable-next-line
+    me().then(() => nav(next, { replace: true })).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    // si query email change (depuis un lien), on le répercute
+    if (presetEmail) setForm((f) => ({ ...f, email: presetEmail }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetEmail]);
 
   const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setError(""); setLoading(true);
+    setError("");
+    setLoading(true);
     try {
       const res = await login(form);
       localStorage.setItem("token", res.token);
@@ -46,7 +54,7 @@ export default function Login() {
 
         <form className="auth-card" onSubmit={onSubmit}>
           <h2>Connexion</h2>
-          {error && <div className="error">{error}</div>}
+          {error && <div className="card" style={{ borderLeft: "4px solid #ef4444" }}>{error}</div>}
 
           <label>
             Email
@@ -77,7 +85,9 @@ export default function Login() {
           <div className="auth-links">
             <Link to="/forgot-password">Mot de passe oublié ?</Link>
             <span>•</span>
-            <Link to={`/register?next=${encodeURIComponent(next)}`}>Créer un compte</Link>
+            <Link to={`/register?next=${encodeURIComponent(next)}&email=${encodeURIComponent(form.email)}`}>
+              Créer un compte
+            </Link>
           </div>
         </form>
       </div>
