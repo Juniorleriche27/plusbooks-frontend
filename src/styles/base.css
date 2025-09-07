@@ -229,3 +229,18 @@ input:focus, textarea:focus, select:focus{
 
 .skeleton .line{ height:12px; background: var(--gray-200); border-radius:8px; }
 .skeleton .w90{ width:90%; } .skeleton .w60{ width:60%; } .skeleton .w40{ width:40%; }
+
+
+/* ===== HOTFIX: header plein écran + contenu un peu plus large ===== */
+
+/* 1) Le header occupe toute la largeur de l’écran, avec la marque bien à gauche */
+.header .container{
+  max-width: 100% !important;   /* plus de recentrage du header */
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* 2) Le contenu central respire un peu plus (moins “petit au milieu”) */
+:root{
+  --maxw: 1320px;  /* avant: 1200px */
+}
