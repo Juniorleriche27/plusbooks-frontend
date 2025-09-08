@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchEbooks } from "../services/api";
+import { fetchEbooks, fetchEbook, API_BASE } from "../services/api";
 
-export default function Ebooks() {
+export default function EbooksList() {
   const nav = useNavigate();
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -47,15 +47,37 @@ export default function Ebooks() {
     );
   }, [items, q]);
 
-  const handleDownload = (ebook) => {
+  // Téléchargement réel : ouvre le PDF dans un nouvel onglet si connecté
+  const handleDownload = async (ebook) => {
     const token = localStorage.getItem("token");
     if (!token) {
       const next = ebook?.id ? `/ebooks/${ebook.id}` : `/ebooks`;
       nav(`/login?next=${encodeURIComponent(next)}`);
       return;
     }
-    // TODO: brancher l’endpoint réel de téléchargement
-    alert("Téléchargement… (à connecter à l’API)");
+
+    try {
+      // Récupérer l'ebook complet pour obtenir file_url/file_path
+      const res = await fetchEbook(ebook.id);
+      const data = res?.data || res || ebook;
+
+      let url = null;
+      if (data.file_url) {
+        url = data.file_url.startsWith("http")
+          ? data.file_url
+          : `${API_BASE}${data.file_url}`;
+      } else if (data.file_path) {
+        url = `${API_BASE}/storage/${data.file_path}`;
+      }
+
+      if (!url) {
+        alert("Aucun fichier n’est attaché à cet e-book.");
+        return;
+      }
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch {
+      alert("Téléchargement impossible pour le moment.");
+    }
   };
 
   return (
@@ -90,7 +112,6 @@ export default function Ebooks() {
           </div>
         </div>
         <div className="toolbar-right">
-          {/* Placeholder tri (optionnel) */}
           <select onChange={()=>{}} defaultValue="recent" aria-label="Trier">
             <option value="recent">Plus récents</option>
             <option value="title">Titre A→Z</option>
@@ -131,10 +152,7 @@ export default function Ebooks() {
 
             return (
               <article key={eb.id} className="ebook-card">
-                <div className="cover">
-                  {/* Si tu as eb.cover_url => <img src={eb.cover_url} alt="" /> */}
-                </div>
-
+                <div className="cover">{/* cover_url si dispo */}</div>
                 <div className="content">
                   <div className="badges">
                     <span className="badge">{format}</span>
@@ -145,7 +163,6 @@ export default function Ebooks() {
                   <h3 className="title">{title}</h3>
                   <p className="muted desc">{desc}</p>
                 </div>
-
                 <div className="actions">
                   <Link className="btn outline" to={`/ebooks/${eb.id}`}>Voir</Link>
                   <button className="btn" onClick={() => handleDownload(eb)}>Télécharger</button>
