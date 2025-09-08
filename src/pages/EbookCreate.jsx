@@ -1,80 +1,116 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { createEbook } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 export default function EbookCreate() {
   const nav = useNavigate();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("0");
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    price: 0,
+  });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
+  const [error, setError] = useState("");
 
-  const submit = async (e) => {
+  const onChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setErr("");
-    if (!title.trim()) { setErr("Le titre est obligatoire."); return; }
+    setError("");
     setLoading(true);
+
     try {
-      await createEbook({ title, description, price: Number(price || 0), file });
-      nav("/"); // retour à l’accueil
-    } catch (e) {
-      console.error(e);
-      setErr("Échec de la publication. Réessaie.");
+      const fd = new FormData();
+      fd.append("title", form.title.trim());
+      fd.append("description", form.description.trim());
+      fd.append("price", String(form.price || 0));
+      if (file) fd.append("file", file); // <— nom de champ attendu par l’API
+
+      // NE PAS fixer Content-Type : axios détecte FormData et met le boundary
+      await createEbook(fd);
+
+      nav("/ebooks", { replace: true });
+    } catch (err) {
+      // Affiche proprement les erreurs de validation Laravel
+      const data = err?.response?.data;
+      const msg =
+        data?.message ||
+        (data?.errors &&
+          Object.values(data.errors).flat().join(" · ")) ||
+        "Échec de la publication. Réessaie.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <h2>Publier un e-book</h2>
+    <section className="container stack" style={{ paddingTop: 24 }}>
+      <h1>Publier un e-book</h1>
 
-      <form className="form" onSubmit={submit}>
-        {err && <p style={{ color: "crimson", margin: 0 }}>{err}</p>}
+      <form className="form" onSubmit={onSubmit}>
+        {error && (
+          <div className="card" style={{ borderLeft: "4px solid #ef4444" }}>
+            {error}
+          </div>
+        )}
 
-        <div>
-          <label htmlFor="title">Titre</label>
-          <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        </div>
-
-        <div>
-          <label htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            rows="4"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="price">Prix (€)</label>
+        <label>
+          Titre
           <input
-            id="price"
+            name="title"
+            value={form.title}
+            onChange={onChange}
+            required
+          />
+        </label>
+
+        <label>
+          Description
+          <textarea
+            name="description"
+            rows={5}
+            value={form.description}
+            onChange={onChange}
+          />
+        </label>
+
+        <label>
+          Prix (€)
+          <input
+            name="price"
             type="number"
             min="0"
             step="0.01"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            value={form.price}
+            onChange={onChange}
           />
-        </div>
+        </label>
 
-        <div>
-          <label htmlFor="file">Fichier PDF (optionnel)</label>
-          <input id="file" type="file" accept="application/pdf" onChange={(e)=>setFile(e.target.files[0])} />
-        </div>
+        <label>
+          Fichier PDF (optionnel)
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+          />
+        </label>
 
         <div className="row">
-          <button className="btn" type="submit" disabled={loading}>
-            {loading ? "Publication…" : "Publier"}
+          <button className="btn" disabled={loading}>
+            {loading ? "Publication..." : "Publier"}
           </button>
-          <button className="btn outline" type="button" onClick={() => nav("/")}>
+          <button
+            type="button"
+            className="btn outline"
+            onClick={() => nav("/ebooks")}
+          >
             Annuler
           </button>
         </div>
       </form>
-    </div>
+    </section>
   );
 }
