@@ -1,0 +1,3 @@
+[submodule "plusbooks-api"]
+	path = plusbooks-api
+	url = https://github.com/Juniorleriche27/plusbooks-api
